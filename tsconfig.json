@@ -1,6 +1,14 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules without default export
+    "jsx": "react-native", // Specify JSX code generation
+    "skipLibCheck": true,
+    "moduleResolution": "node", // Specify module resolution strategy
+    "noEmit": true, // not emit outputs
+    "target": "esnext", // Specify ECMAScript target version
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules"]
   }
 }
