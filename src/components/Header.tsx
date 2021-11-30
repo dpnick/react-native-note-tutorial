@@ -1,9 +1,9 @@
+import StyledText from '@components/StyledText';
+import StyledView from '@components/StyledView';
+import { ThemeContext } from '@contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import React, { useContext } from 'react';
 import { Alert, Linking, Pressable, StatusBar } from 'react-native';
-import { ThemeContext } from '../contexts/ThemeContext';
-import StyledText from './StyledText';
-import StyledView from './StyledView';
 
 const TWITTER_NAME = '@dpnick_';
 export const HEADER_FULL_HEIGHT = 300;

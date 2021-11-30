@@ -1,6 +1,6 @@
+import { Note } from '@models/note';
 import { subDays, subMonths } from 'date-fns';
 import React, { createContext, useContext, useReducer } from 'react';
-import { Note } from '../models/note';
 
 const EXAMPLE_NOTES: Note[] = [
   {
