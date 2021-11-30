@@ -1,12 +1,12 @@
+import StyledText from '@components/StyledText';
+import StyledView from '@components/StyledView';
+import { useNote } from '@contexts/NoteContext';
+import { HomeStackParamList } from '@navigation/HomeStack';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { formatDistanceToNow } from 'date-fns';
 import React, { useEffect, useRef } from 'react';
 import { ScrollView, TextInput } from 'react-native';
 import { useTheme } from 'styled-components/native';
-import StyledText from '../components/StyledText';
-import StyledView from '../components/StyledView';
-import { useNote } from '../contexts/NoteContext';
-import { HomeStackParamList } from '../navigation/HomeStack';
 
 type NoteEditProps = NativeStackScreenProps<HomeStackParamList, 'NoteEdit'>;
 

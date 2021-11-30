@@ -1,9 +1,9 @@
+import StyledView from '@components/StyledView';
+import Home from '@pages/Home';
+import NoteEdit from '@pages/NoteEdit';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { useTheme } from 'styled-components/native';
-import StyledView from '../components/StyledView';
-import Home from '../pages/Home';
-import NoteEdit from '../pages/NoteEdit';
 
 export type HomeStackParamList = {
   Home: undefined;

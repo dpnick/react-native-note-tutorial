@@ -1,9 +1,9 @@
+import NoteProvider from '@contexts/NoteContext';
+import ThemeProvider from '@contexts/ThemeContext';
+import Navigation from '@navigation/index';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import NoteProvider from './src/contexts/NoteContext';
-import ThemeProvider from './src/contexts/ThemeContext';
-import Navigation from './src/navigation';
 
 export default function App() {
   return (

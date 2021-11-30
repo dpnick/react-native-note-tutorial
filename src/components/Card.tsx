@@ -1,9 +1,9 @@
+import StyledText from '@components/StyledText';
+import StyledView, { StyledViewProps } from '@components/StyledView';
+import { Note } from '@models/note';
 import { formatDistanceToNow } from 'date-fns';
 import React from 'react';
 import { Pressable } from 'react-native';
-import { Note } from '../models/note';
-import StyledText from './StyledText';
-import StyledView, { StyledViewProps } from './StyledView';
 
 interface CardProps extends StyledViewProps {
   note: Note;

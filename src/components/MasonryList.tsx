@@ -1,12 +1,12 @@
+import Card from '@components/Card';
+import StyledText from '@components/StyledText';
+import StyledView from '@components/StyledView';
 import SimpleLineIcons from '@expo/vector-icons/build/SimpleLineIcons';
+import { Note } from '@models/note';
+import { HomeProps } from '@pages/Home';
 import { useNavigation } from '@react-navigation/native';
 import React, { memo } from 'react';
 import { useTheme } from 'styled-components/native';
-import { Note } from '../models/note';
-import { HomeProps } from '../pages/Home';
-import Card from './Card';
-import StyledText from './StyledText';
-import StyledView from './StyledView';
 
 interface MasonryListProps {
   notes: Note[];

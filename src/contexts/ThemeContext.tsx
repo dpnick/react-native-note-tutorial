@@ -1,8 +1,8 @@
+import { StorageKeys } from '@models/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
 import { Alert, useColorScheme } from 'react-native';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components/native';
-import { StorageKeys } from '../models/storage';
 import { darkTheme, lightTheme } from '../Theme';
 
 // create context with default value
