@@ -5,15 +5,17 @@ import { formatDistanceToNow } from 'date-fns';
 import React from 'react';
 import { Pressable } from 'react-native';
 
-interface CardProps extends StyledViewProps {
+interface NoteCardProps extends StyledViewProps {
   note: Note;
   showNoteEdit: (id: number, title: string) => void;
 }
 
-export default function Card({ note, showNoteEdit, ...props }: CardProps) {
-  const showDetail = () => {
-    showNoteEdit(note.id, note.title);
-  };
+export default function NoteCard({
+  note,
+  showNoteEdit,
+  ...props
+}: NoteCardProps) {
+  const showDetail = () => showNoteEdit(note.id, note.title);
 
   return (
     <Pressable

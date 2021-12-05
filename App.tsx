@@ -3,23 +3,17 @@ import ThemeProvider from '@contexts/ThemeContext';
 import Navigation from '@navigation/index';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaProvider>
       <ThemeProvider>
         <NoteProvider>
           <Navigation />
+          <StatusBar style='auto' animated />
         </NoteProvider>
-        <StatusBar style='auto' />
       </ThemeProvider>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
