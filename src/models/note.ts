@@ -6,5 +6,7 @@ export interface Note {
   updatedAt: number;
   content: string;
   // Card background color
-  color: 'primary' | 'secondary';
+  color: NoteColors;
 }
+
+export type NoteColors = 'primary' | 'secondary';

@@ -50,7 +50,7 @@ export default function Header() {
       </StyledView>
       <StyledView
         position='absolute'
-        top={(StatusBar.currentHeight || 50) + 8}
+        top={(StatusBar.currentHeight || 40) + 8}
         right={16}
       >
         <Pressable

@@ -1,53 +1,27 @@
-import { Note } from '@models/note';
-import { subDays, subMonths } from 'date-fns';
-import React, { createContext, useContext, useReducer } from 'react';
-
-const EXAMPLE_NOTES: Note[] = [
-  {
-    id: 1,
-    title: 'First',
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    content: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\n Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
-    color: 'secondary',
-  },
-  {
-    id: 2,
-    title: 'Second',
-    createdAt: subMonths(Date.now(), 3).getTime(),
-    updatedAt: subDays(Date.now(), 1).getTime(),
-    content: `Lorem Ipsum is simply dummy text`,
-    color: 'primary',
-  },
-  {
-    id: 3,
-    title: 'Third',
-    createdAt: subDays(Date.now(), 10).getTime(),
-    updatedAt: subDays(Date.now(), 5).getTime(),
-    content: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.`,
-    color: 'primary',
-  },
-  {
-    id: 4,
-    title: 'Fourth',
-    createdAt: subDays(Date.now(), 22).getTime(),
-    updatedAt: subDays(Date.now(), 20).getTime(),
-    content: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum.`,
-    color: 'secondary',
-  },
-];
+import { Note, NoteColors } from '@models/note';
+import { StorageKeys } from '@models/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import { Alert } from 'react-native';
 
 interface INoteContext {
-  notes: Note[];
-  selectedNote?: Note;
-  selectNote: (id: number) => void;
-  updateNote: (id: number, content: string) => void;
+  notes: Note[] | undefined;
+  selectedNote: Note | undefined;
+  selectNote: (id?: number) => void;
+  deleteNote: (id: number) => void;
+  createNote: (title: string, content: string) => void;
+  updateNote: (id: number, title: string, content: string) => void;
+  updateNoteColor: (id: number, color: NoteColors) => void;
 }
 
 const NoteContext = createContext<INoteContext>({
-  notes: [],
+  notes: undefined,
+  selectedNote: undefined,
   selectNote: () => {},
+  deleteNote: () => {},
+  createNote: () => {},
   updateNote: () => {},
+  updateNoteColor: () => {},
 });
 
 export function useNote() {
@@ -55,21 +29,37 @@ export function useNote() {
 }
 
 enum NoteActionTypes {
+  LOAD_NOTES = 'load-notes',
   SELECT_NOTE = 'select-note',
+  DELETE_NOTE = 'delete-note',
+  CREATE_NOTE = 'create-note',
   UPDATE_NOTE = 'update-note',
+  UPDATE_NOTE_COLOR = 'update-note-color',
 }
 
-interface NoteAction {
-  type: NoteActionTypes;
-  payload: any;
-}
+type NoteAction =
+  | { type: NoteActionTypes.LOAD_NOTES; payload: { notes: Note[] } }
+  | { type: NoteActionTypes.SELECT_NOTE; payload: { id: number | undefined } }
+  | { type: NoteActionTypes.DELETE_NOTE; payload: { notes: Note[] } }
+  | { type: NoteActionTypes.CREATE_NOTE; payload: { note: Note } }
+  | { type: NoteActionTypes.UPDATE_NOTE; payload: { notes: Note[] } }
+  | { type: NoteActionTypes.UPDATE_NOTE_COLOR; payload: { notes: Note[] } };
 
 interface NoteState {
-  notes: Note[];
+  notes: Note[] | undefined;
   selectedId: number | undefined;
 }
 
-const selectNote = (id: number): NoteAction => {
+const loadNotes = (notes: Note[]): NoteAction => {
+  return {
+    type: NoteActionTypes.LOAD_NOTES,
+    payload: {
+      notes,
+    },
+  };
+};
+
+const selectNote = (id?: number): NoteAction => {
   return {
     type: NoteActionTypes.SELECT_NOTE,
     payload: {
@@ -78,65 +68,218 @@ const selectNote = (id: number): NoteAction => {
   };
 };
 
-const updateNote = (id: number, content: string): NoteAction => {
+const deleteNote = (notes: Note[]): NoteAction => {
+  return {
+    type: NoteActionTypes.DELETE_NOTE,
+    payload: {
+      notes,
+    },
+  };
+};
+
+const createNote = (note: Note): NoteAction => {
+  return {
+    type: NoteActionTypes.CREATE_NOTE,
+    payload: {
+      note,
+    },
+  };
+};
+
+const updateNote = (notes: Note[]): NoteAction => {
   return {
     type: NoteActionTypes.UPDATE_NOTE,
     payload: {
-      id,
-      content,
+      notes,
+    },
+  };
+};
+
+const updateNoteColor = (notes: Note[]): NoteAction => {
+  return {
+    type: NoteActionTypes.UPDATE_NOTE_COLOR,
+    payload: {
+      notes,
     },
   };
 };
 
 function reducer(state: NoteState, action: NoteAction): NoteState {
-  const { type, payload } = action;
-  switch (type) {
+  switch (action.type) {
+    case NoteActionTypes.LOAD_NOTES:
+      return {
+        ...state,
+        notes: action.payload.notes,
+      };
     case NoteActionTypes.SELECT_NOTE:
       return {
         ...state,
-        selectedId: payload.id,
+        selectedId: action.payload.id,
       };
-    case NoteActionTypes.UPDATE_NOTE:
-      const updatedNote: Note | undefined = state.notes.find(
-        (note) => note.id === payload.id
-      );
-      if (updatedNote) {
-        updatedNote.content = payload.content;
-        updatedNote.updatedAt = Date.now();
+    case NoteActionTypes.DELETE_NOTE:
+      return {
+        ...state,
+        notes: action.payload.notes,
+      };
+    case NoteActionTypes.CREATE_NOTE:
+      if (state.notes) {
         return {
           ...state,
-          notes: [
-            ...state.notes.filter((note) => note.id !== payload.id),
-            updatedNote,
-          ],
+          notes: [...state.notes, action.payload.note],
+          selectedId: action.payload.note.id,
         };
       }
       return state;
+    case NoteActionTypes.UPDATE_NOTE:
+      return {
+        ...state,
+        notes: action.payload.notes,
+      };
+    case NoteActionTypes.UPDATE_NOTE_COLOR:
+      return {
+        ...state,
+        notes: action.payload.notes,
+      };
     default:
       return state;
   }
 }
+
 const NoteProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, {
-    notes: EXAMPLE_NOTES,
+    notes: undefined,
     selectedId: undefined,
   });
 
-  const onSelectNote = (id: number) => {
+  useEffect(() => {
+    const getNotes = async () => {
+      // instead of calling async storage in a real case
+      // you would here make a fetch request to your API
+      try {
+        let notes = [];
+        const savedNotes = await AsyncStorage.getItem(StorageKeys.USER_NOTES);
+        if (savedNotes !== null) {
+          notes = JSON.parse(savedNotes);
+        }
+        dispatch(loadNotes(notes));
+      } catch {
+        Alert.alert('An error occured while getting your notes');
+      }
+    };
+    getNotes();
+  }, []);
+
+  const onSelectNote = (id?: number) => {
     dispatch(selectNote(id));
   };
 
-  const onUpdateNote = (id: number, content: string) => {
-    dispatch(updateNote(id, content));
+  const onDeleteNote = async (id: number) => {
+    if (!state.notes) return;
+    const nextNotes = state.notes.filter((note) => note.id !== id);
+    // instead of calling async storage in a real case
+    // you would here make a fetch request to your API
+    try {
+      await AsyncStorage.setItem(
+        StorageKeys.USER_NOTES,
+        JSON.stringify(nextNotes)
+      );
+      dispatch(deleteNote(nextNotes));
+    } catch {
+      Alert.alert('An error occured while deleting your note');
+    }
+  };
+
+  const onCreateNote = async (title: string, content: string) => {
+    if (!state.notes) return;
+    // in real case you could use uuid generator
+    const max = state.notes?.reduce(
+      (prev, current) => (prev > current.id ? prev : current.id),
+      0
+    );
+    const newNote: Note = {
+      id: max + 1,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      title,
+      content,
+      color: 'primary',
+    };
+    // instead of calling async storage in a real case
+    // you would here make a fetch request to your API
+    try {
+      await AsyncStorage.setItem(
+        StorageKeys.USER_NOTES,
+        JSON.stringify([...state.notes, newNote])
+      );
+      dispatch(createNote(newNote));
+    } catch {
+      Alert.alert('An error occured while deleting your note');
+    }
+  };
+
+  const onUpdateNote = async (id: number, title: string, content: string) => {
+    if (!state.notes) return;
+    const updatedNote: Note | undefined = state.notes.find(
+      (note) => note.id === id
+    );
+    if (updatedNote) {
+      updatedNote.title = title;
+      updatedNote.content = content;
+      updatedNote.updatedAt = Date.now();
+      const nextNotes = [
+        ...state.notes.filter((note) => note.id !== id),
+        updatedNote,
+      ];
+      // instead of calling async storage in a real case
+      // you would here make a fetch request to your API
+      try {
+        await AsyncStorage.setItem(
+          StorageKeys.USER_NOTES,
+          JSON.stringify(nextNotes)
+        );
+        dispatch(updateNote(nextNotes));
+      } catch {
+        Alert.alert('An error occured while deleting your note');
+      }
+    }
+  };
+
+  const onUpdateNoteColor = async (id: number, color: NoteColors) => {
+    if (!state.notes) return;
+    const updatedNote: Note | undefined = state.notes.find(
+      (note) => note.id === id
+    );
+    if (updatedNote) {
+      updatedNote.color = color;
+      updatedNote.updatedAt = Date.now();
+      const nextNotes = [
+        ...state.notes.filter((note) => note.id !== id),
+        updatedNote,
+      ];
+      // instead of calling async storage in a real case
+      // you would here make a fetch request to your API
+      try {
+        await AsyncStorage.setItem(
+          StorageKeys.USER_NOTES,
+          JSON.stringify(nextNotes)
+        );
+        dispatch(updateNoteColor(nextNotes));
+      } catch {
+        Alert.alert('An error occured while deleting your note');
+      }
+    }
   };
 
   return (
     <NoteContext.Provider
       value={{
         notes: state.notes,
-        selectedNote: state.notes.find((note) => note.id === state.selectedId),
+        selectedNote: state.notes?.find((note) => note.id === state.selectedId),
         selectNote: onSelectNote,
+        deleteNote: onDeleteNote,
+        createNote: onCreateNote,
         updateNote: onUpdateNote,
+        updateNoteColor: onUpdateNoteColor,
       }}
     >
       {children}
