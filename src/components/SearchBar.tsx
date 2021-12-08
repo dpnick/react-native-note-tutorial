@@ -19,7 +19,7 @@ export default function SearchBar({
 }: SearchBarInterface) {
   return (
     <StyledView
-      p={3}
+      p={20}
       pt={0}
       width='100%'
       position='absolute'

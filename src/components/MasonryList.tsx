@@ -26,18 +26,19 @@ function compareDateDesc(first: Note, second: Note) {
 }
 
 function MasonryList({ notes, search, userHasNotes }: MasonryListProps) {
-  // allow to get values from current theme
-  // to use it in non-styled component for example (icon in this case)
+  // navigation use HomeProps bc this component live in this route
   const navigation = useNavigation<HomeProps>();
   const { selectNote } = useNote();
 
+  // function passed to each NoteCard as prop
   const showNoteEdit = (id: number) => {
+    // select the clicked note in our state (see NoteContext)
     selectNote(id);
     navigation.navigate('NoteEdit');
   };
 
   if (!userHasNotes) {
-    return <EmptyList content='Start by creating a note 👇' icon='present' />;
+    return <EmptyList message='Start by creating a note 👇' icon='present' />;
   }
   // explanation bellow
   return (
@@ -75,7 +76,7 @@ function MasonryList({ notes, search, userHasNotes }: MasonryListProps) {
         })
       ) : (
         <EmptyList
-          content={`No corresponding result for ${search}`}
+          message={`No corresponding result for ${search}`}
           icon='ghost'
         />
       )}
