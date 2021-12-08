@@ -36,6 +36,7 @@ export default function Home() {
     if (!notes) return;
     setFilteredNotes(notes);
     setIsLoading(false);
+    setSearch('');
   }, [notes]);
 
   // run each time debouncedSearch change

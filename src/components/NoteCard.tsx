@@ -5,18 +5,26 @@ import { formatDistanceToNow } from 'date-fns';
 import React from 'react';
 import { Pressable } from 'react-native';
 
+// each card will receive the following as props
+// but can also be styled from parent thanks to the extend
 interface NoteCardProps extends StyledViewProps {
   note: Note;
   showNoteEdit: (id: number, title: string) => void;
 }
 
+// "...props" represent all possible styling props
 export default function NoteCard({
   note,
   showNoteEdit,
   ...props
 }: NoteCardProps) {
+  // call navigate function from parent (props)
   const showDetail = () => showNoteEdit(note.id, note.title);
 
+  // wrap a card with a pressable element to allow navigation on click
+  // use date-fns method 'formatDistanceToNow' to make our timestamp human-readable
+  // using our generic component to create the desired style
+  // 'numberOfLines' allow us to limit the content preview to 8 lines
   return (
     <Pressable
       onPress={showDetail}

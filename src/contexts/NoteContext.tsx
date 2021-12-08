@@ -174,6 +174,7 @@ const NoteProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onDeleteNote = async (id: number) => {
+    // guard to prevent running if notes is not defined
     if (!state.notes) return;
     const nextNotes = state.notes.filter((note) => note.id !== id);
     // instead of calling async storage in a real case
@@ -190,6 +191,7 @@ const NoteProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onCreateNote = async (title: string, content: string) => {
+    // guard to prevent running if notes is not defined
     if (!state.notes) return;
     // in real case you could use uuid generator
     const max = state.notes?.reduce(
@@ -218,6 +220,7 @@ const NoteProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onUpdateNote = async (id: number, title: string, content: string) => {
+    // guard to prevent running if notes is not defined
     if (!state.notes) return;
     const updatedNote: Note | undefined = state.notes.find(
       (note) => note.id === id
@@ -245,6 +248,8 @@ const NoteProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onUpdateNoteColor = async (id: number, color: NoteColors) => {
+    // guard to prevent running if notes is not defined
+
     if (!state.notes) return;
     const updatedNote: Note | undefined = state.notes.find(
       (note) => note.id === id
@@ -270,6 +275,7 @@ const NoteProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // our context forward both our state and the functions to update it to its children
   return (
     <NoteContext.Provider
       value={{
