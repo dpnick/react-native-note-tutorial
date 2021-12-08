@@ -8,3 +8,8 @@
 2. `cd your-app-name`
 3. `npm i`
 4. run it with `expo start`
+
+https://user-images.githubusercontent.com/23317360/145230644-f2d5dc6e-f524-47db-89ce-5612ad72bde9.mp4
+
+
+
