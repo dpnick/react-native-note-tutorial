@@ -1,24 +1,35 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "allowSyntheticDefaultImports": true, // Allow default imports from modules without default export
-    "jsx": "react-native", // Specify JSX code generation
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-native",
     "skipLibCheck": true,
-    "moduleResolution": "node", // Specify module resolution strategy
-    "noEmit": true, // not emit outputs
-    "target": "esnext", // Specify ECMAScript target version
+    "moduleResolution": "node",
+    "noEmit": true,
+    "target": "esnext",
     "baseUrl": ".",
-    // create paths to our module futur modules
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@navigation/*": ["./src/navigation/*"],
-      "@contexts/*": ["./src/contexts/*"],
-      "@models/*": ["./src/models/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@pages/*": ["./src/pages/*"]
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@navigation/*": [
+        "./src/navigation/*"
+      ],
+      "@contexts/*": [
+        "./src/contexts/*"
+      ],
+      "@models/*": [
+        "./src/models/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@pages/*": [
+        "./src/pages/*"
+      ]
     }
-  }
+  },
+  "extends": "expo/tsconfig.base"
 }

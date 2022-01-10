@@ -1,31 +1,59 @@
 import { Feather } from '@expo/vector-icons';
+import {
+  HEADER_FULL_HEIGHT,
+  HEADER_MIN_HEIGHT,
+  HEADER_SCROLL_DISTANCE,
+  PADDING_TOP_BAR,
+  SEARCH_BAR_HEIGHT,
+} from '@models/layout';
 import React from 'react';
 import { StyleSheet, TextInput } from 'react-native';
-import { HEADER_FULL_HEIGHT } from './Header';
+import Animated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import StyledView from './StyledView';
 
 interface SearchBarInterface {
   value: string;
   onChangeText: (next: string) => void;
   placeholder: string;
+  scroll: Animated.SharedValue<number>;
 }
 
-const PADDING_TOP_BAR = 16;
+const AnimatedSearchView = Animated.createAnimatedComponent(StyledView);
 
 export default function SearchBar({
   value,
   onChangeText,
   placeholder,
+  scroll,
 }: SearchBarInterface) {
+  const searchAnimatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scroll.value,
+      [0, HEADER_SCROLL_DISTANCE],
+      [
+        HEADER_FULL_HEIGHT + PADDING_TOP_BAR,
+        HEADER_MIN_HEIGHT - SEARCH_BAR_HEIGHT - PADDING_TOP_BAR,
+      ],
+      Extrapolate.CLAMP
+    );
+    return {
+      transform: [{ translateY }],
+    };
+  });
+
   return (
-    <StyledView
-      p={20}
-      pt={0}
+    <AnimatedSearchView
+      px={20}
+      pb={16}
       width='100%'
       position='absolute'
-      borderBottomLeftRadius={24}
-      borderBottomRightRadius={24}
-      top={HEADER_FULL_HEIGHT + PADDING_TOP_BAR}
+      style={searchAnimatedStyle}
+      backgroundColor='transparent'
+      zIndex={1}
     >
       <StyledView
         bg='accent'
@@ -33,7 +61,7 @@ export default function SearchBar({
         flexDirection='row'
         justifyContent='flex-start'
         alignItems='center'
-        height={40}
+        height={SEARCH_BAR_HEIGHT}
       >
         <Feather
           name='search'
@@ -57,7 +85,7 @@ export default function SearchBar({
           />
         )}
       </StyledView>
-    </StyledView>
+    </AnimatedSearchView>
   );
 }
 

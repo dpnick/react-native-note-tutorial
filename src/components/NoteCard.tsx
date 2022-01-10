@@ -4,6 +4,7 @@ import { Note } from '@models/note';
 import { formatDistanceToNow } from 'date-fns';
 import React from 'react';
 import { Pressable } from 'react-native';
+import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 
 // each card will receive the following as props
 // but can also be styled from parent thanks to the extend
@@ -11,6 +12,8 @@ interface NoteCardProps extends StyledViewProps {
   note: Note;
   showNoteEdit: (id: number, title: string) => void;
 }
+
+const AnimatedStyledView = Animated.createAnimatedComponent(StyledView);
 
 // "...props" represent all possible styling props
 export default function NoteCard({
@@ -30,7 +33,7 @@ export default function NoteCard({
       onPress={showDetail}
       style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
     >
-      <StyledView {...props}>
+      <AnimatedStyledView entering={FadeInUp} exiting={FadeOutDown} {...props}>
         <StyledText
           color='white'
           numberOfLines={1}
@@ -47,7 +50,7 @@ export default function NoteCard({
         <StyledText color='whitesmoke' numberOfLines={8}>
           {note.content}
         </StyledText>
-      </StyledView>
+      </AnimatedStyledView>
     </Pressable>
   );
 }

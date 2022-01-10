@@ -21,9 +21,8 @@ export default function ColorButton({
       height={30}
       backgroundColor={color}
       borderRadius={15}
-      borderWidth={selected ? 5 : 0}
-      borderColor={color}
-      borderStyle='dotted'
+      borderWidth={selected ? 3 : 0}
+      borderColor='gray'
       marginLeft={1}
       marginRight={1}
     />
