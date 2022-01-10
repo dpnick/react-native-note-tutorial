@@ -1,26 +1,36 @@
 import CreateButton from '@components/CreateButton';
-import Header, { HEADER_FULL_HEIGHT } from '@components/Header';
+import Header from '@components/Header';
 import MasonryList from '@components/MasonryList';
 import SearchBar from '@components/SearchBar';
 import StyledView from '@components/StyledView';
 import { useNote } from '@contexts/NoteContext';
+import { ThemeContext } from '@contexts/ThemeContext';
 import useDebounce from '@hooks/useDebounce';
+import {
+  HEADER_FULL_HEIGHT,
+  PADDING_TOP_BAR,
+  SEARCH_BAR_HEIGHT,
+} from '@models/layout';
 import { Note } from '@models/note';
 import { HomeStackParamList } from '@navigation/HomeStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
-import styled, { useTheme } from 'styled-components/native';
+import React, { useContext, useEffect, useState } from 'react';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import styled from 'styled-components/native';
 import { compose, layout, LayoutProps, space, SpaceProps } from 'styled-system';
 
 const StyledScrollView = styled.ScrollView<LayoutProps & SpaceProps>(
   compose(layout, space)
 );
 
+const AnimatedScrollView = Animated.createAnimatedComponent(StyledScrollView);
+
 export type HomeProps = NativeStackNavigationProp<HomeStackParamList, 'Home'>;
 
-const SEARCH_INPUT_HEIGHT = 40;
-const PADDING_TOP_CONTENT = 16;
+const PADDING_VERTICAL_SEARCH = 32;
 
 export default function Home() {
   const { notes } = useNote();
@@ -28,7 +38,7 @@ export default function Home() {
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [search, setSearch] = useState<string>('');
   const debouncedSearch = useDebounce<string>(search, 500);
-  const { primary } = useTheme().colors;
+  const { isDarkTheme } = useContext(ThemeContext);
 
   // allow to set local state in sync
   useEffect(() => {
@@ -48,36 +58,44 @@ export default function Home() {
     setFilteredNotes(nextData);
   }, [debouncedSearch]);
 
+  const headerScroll = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    headerScroll.value = event.contentOffset.y;
+  });
+
   return (
     <StyledView flex={1} alignItems='center' backgroundColor='background'>
-      <StyledScrollView
+      <AnimatedScrollView
         width='100%'
-        p={16}
-        pb={0}
+        px={16}
         contentContainerStyle={{
           paddingTop:
-            HEADER_FULL_HEIGHT + SEARCH_INPUT_HEIGHT + PADDING_TOP_CONTENT,
+            HEADER_FULL_HEIGHT + SEARCH_BAR_HEIGHT + PADDING_TOP_BAR * 2,
         }}
+        keyboardShouldPersistTaps='never'
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        bounces={false}
       >
-        {isLoading ? (
-          <ActivityIndicator size='large' color={primary} />
-        ) : (
-          <MasonryList
-            notes={filteredNotes}
-            search={search}
-            userHasNotes={!!notes && notes?.length > 0}
-          />
-        )}
-      </StyledScrollView>
+        <MasonryList
+          notes={filteredNotes}
+          search={search}
+          isLoading={isLoading}
+          userHasNotes={!!notes && notes?.length > 0}
+        />
+      </AnimatedScrollView>
       {notes && notes?.length > 0 && (
         <SearchBar
           value={search}
           onChangeText={setSearch}
           placeholder='Search a title...'
+          scroll={headerScroll}
         />
       )}
       <CreateButton />
-      <Header />
+      <Header scroll={headerScroll} />
     </StyledView>
   );
 }
